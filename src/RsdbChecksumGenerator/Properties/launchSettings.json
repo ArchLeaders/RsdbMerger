@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RsdbChecksumGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\bin\\.todo\\RSDB\\RsdbOverflow.bin D:\\bin\\.todo\\RSDB\\RsdbIndexMapping.bin F:\\Games\\RomFS\\Totk\\1.1.0 F:\\Games\\RomFS\\Totk\\1.1.1 F:\\Games\\RomFS\\Totk\\1.1.2 F:\\Games\\RomFS\\Totk\\1.2.0 F:\\Games\\RomFS\\Totk\\1.2.1"
+    }
+  }
+}

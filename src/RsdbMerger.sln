@@ -3,17 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RsdbMerger.Core", "RsdbMerger.Core\RsdbMerger.Core.csproj", "{394A7FD1-0B7F-4802-92B2-FE37D44C2AB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RsdbMerger.Core", "RsdbMerger.Core\RsdbMerger.Core.csproj", "{394A7FD1-0B7F-4802-92B2-FE37D44C2AB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RsdbMerger", "RsdbMerger\RsdbMerger.csproj", "{FDC7756C-413D-45BA-BDF2-A6EE609AB5E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RsdbMerger", "RsdbMerger\RsdbMerger.csproj", "{FDC7756C-413D-45BA-BDF2-A6EE609AB5E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{C28B4065-9227-42FD-AD63-5A8286C54A57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RsdbChecksumGenerator", "RsdbChecksumGenerator\RsdbChecksumGenerator.csproj", "{32064204-B3B6-4D36-BE21-73946A2B87E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{394A7FD1-0B7F-4802-92B2-FE37D44C2AB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +25,18 @@ Global
 		{FDC7756C-413D-45BA-BDF2-A6EE609AB5E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDC7756C-413D-45BA-BDF2-A6EE609AB5E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDC7756C-413D-45BA-BDF2-A6EE609AB5E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32064204-B3B6-4D36-BE21-73946A2B87E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32064204-B3B6-4D36-BE21-73946A2B87E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32064204-B3B6-4D36-BE21-73946A2B87E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32064204-B3B6-4D36-BE21-73946A2B87E2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{32064204-B3B6-4D36-BE21-73946A2B87E2} = {C28B4065-9227-42FD-AD63-5A8286C54A57}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ABFDB435-B320-4A24-A72A-125E92F30DE1}
 	EndGlobalSection
 EndGlobal
