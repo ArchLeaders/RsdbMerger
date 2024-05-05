@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RsdbMerger": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\bin\\.todo\\RSDB\\romfs\" \"D:\\bin\\.todo\\RSDB\\output-romfs\""
+    }
+  }
+}
