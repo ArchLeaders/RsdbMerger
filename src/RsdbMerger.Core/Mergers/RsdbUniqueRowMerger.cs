@@ -14,6 +14,7 @@ namespace RsdbMerger.Core.Mergers;
 /// </summary>
 public class RsdbUniqueRowMerger : IRsdbMerger
 {
+    private const string ID_KEY = "__RowId";
     private readonly Func<BymlMap, ulong> _getRowIdHash;
 
     public RsdbUniqueRowMerger(Func<BymlMap, ulong> getRowIdHash)
@@ -64,13 +65,12 @@ public class RsdbUniqueRowMerger : IRsdbMerger
             vanilla = vanillaRows[vanillaIndex];
         }
 
-        if (Byml.ValueEqualityComparer.Default.Equals(row, vanilla)) {
-            return true;
+        if (!BymlMergerService.CreateChangelog(ref row, vanilla)) {
+            map[ID_KEY] = rowId;
+            return false;
         }
 
-        // Isolate changes
-
-        return false;
+        return true;
     }
 
     public void Merge(ArraySegment<byte>[] merge, Stream output)
