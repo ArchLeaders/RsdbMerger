@@ -82,7 +82,7 @@ public class BymlMergerService
 
     private static bool CreateMapChangelog<T>(IDictionary<T, Byml> src, IDictionary<T, Byml> vanilla)
     {
-        foreach (T key in src.Keys.Concat(vanilla.Keys).Distinct().ToArray()) {
+        foreach (T key in src.Keys.Concat(vanilla.Keys).Distinct().ToArray()) { // TODO: Avoid copying keys
             if (!src.TryGetValue(key, out Byml? srcValue)) {
                 src[key] = BymlChangeType.Remove;
                 continue;
