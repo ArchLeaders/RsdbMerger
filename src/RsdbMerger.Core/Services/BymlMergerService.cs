@@ -35,49 +35,30 @@ public class BymlMergerService
 
     private static bool CreateArrayChangelog(ref Byml root, BymlArray src, BymlArray vanilla)
     {
+        (bool isVanillaSmaller, BymlArray larger, BymlArray smaller) = (vanilla.Count < src.Count)
+            ? (true, src, vanilla)
+            : (false, vanilla, src);
+
         BymlArrayChangelog changelog = [];
 
-        root = (src.Count < vanilla.Count)
-            ? CreateArrayChangelogModifiedSmaller(changelog, src, vanilla)
-            : CreateArrayChangelogVanillaSmaller(changelog, src, vanilla);
+        int i = 0;
 
+        for (; i < smaller.Count; i++) {
+            Byml srcEntry = src[i];
+            if (!CreateChangelog(ref srcEntry, vanilla[i])) {
+                changelog[i] = (BymlChangeType.Edit, srcEntry);
+            }
+        }
+
+        for (; i < larger.Count; i++) {
+            changelog[i] = isVanillaSmaller switch {
+                true => (BymlChangeType.Add, src[i]),
+                false => (BymlChangeType.Remove, new())
+            };
+        }
+
+        root = changelog;
         return changelog.Count == 0;
-    }
-
-    private static Byml CreateArrayChangelogVanillaSmaller(in BymlArrayChangelog changelog, BymlArray src, BymlArray vanilla)
-    {
-        int i = 0;
-
-        for (; i < vanilla.Count; i++) {
-            Byml srcEntry = src[i];
-            if (!CreateChangelog(ref srcEntry, vanilla[i])) {
-                changelog[i] = (BymlChangeType.Edit, srcEntry);
-            }
-        }
-
-        for (; i < src.Count; i++) {
-            changelog[i] = (BymlChangeType.Add, src[i]);
-        }
-
-        return changelog;
-    }
-
-    private static Byml CreateArrayChangelogModifiedSmaller(in BymlArrayChangelog changelog, BymlArray src, BymlArray vanilla)
-    {
-        int i = 0;
-
-        for (; i < src.Count; i++) {
-            Byml srcEntry = src[i];
-            if (!CreateChangelog(ref srcEntry, vanilla[i])) {
-                changelog[i] = (BymlChangeType.Edit, srcEntry);
-            }
-        }
-
-        for (; i < vanilla.Count; i++) {
-            changelog[i] = (BymlChangeType.Remove, new());
-        }
-
-        return changelog;
     }
 
     private static bool CreateMapChangelog<T>(IDictionary<T, Byml> src, IDictionary<T, Byml> vanilla)
