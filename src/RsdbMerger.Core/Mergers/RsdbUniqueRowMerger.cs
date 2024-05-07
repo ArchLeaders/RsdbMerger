@@ -12,15 +12,10 @@ namespace RsdbMerger.Core.Mergers;
 /// <summary>
 /// Merges array based RSDB files using the a unique id.
 /// </summary>
-public class RsdbUniqueRowMerger : IRsdbMerger
+public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash) : IRsdbMerger
 {
-    private const string ID_KEY = "__RowId";
-    private readonly Func<BymlMap, ulong> _getRowIdHash;
-
-    public RsdbUniqueRowMerger(Func<BymlMap, ulong> getRowIdHash)
-    {
-        _getRowIdHash = getRowIdHash;
-    }
+    private readonly string _idKey = idKey;
+    private readonly Func<BymlMap, ulong> _getRowIdHash = getRowIdHash;
 
     public void CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
     {
@@ -36,7 +31,7 @@ public class RsdbUniqueRowMerger : IRsdbMerger
         BymlArray array = root.GetArray();
 
         for (int i = 0; i < array.Count; i++) {
-            bool isVanillaRow = ProcessRow(vanillaRows, array[i], rsdbNameHash, target.Version);
+            bool isVanillaRow = LogRowChanges(vanillaRows, array[i], rsdbNameHash, target.Version);
 
             if (isVanillaRow) {
                 array.RemoveAt(i);
@@ -51,7 +46,7 @@ public class RsdbUniqueRowMerger : IRsdbMerger
         ms.CopyTo(output);
     }
 
-    private bool ProcessRow(BymlArray vanillaRows, Byml row, ulong rsdbNameHash, int version)
+    private bool LogRowChanges(BymlArray vanillaRows, Byml row, ulong rsdbNameHash, int version)
     {
         BymlMap map = row.GetMap();
         ulong rowId = _getRowIdHash(map);
@@ -65,8 +60,8 @@ public class RsdbUniqueRowMerger : IRsdbMerger
             vanilla = vanillaRows[vanillaIndex];
         }
 
-        if (!BymlMergerService.CreateChangelog(ref row, vanilla)) {
-            map[ID_KEY] = rowId;
+        if (!BymlMergerService.LogChanges(ref row, vanilla)) {
+            map[_idKey] = rowId;
             return false;
         }
 

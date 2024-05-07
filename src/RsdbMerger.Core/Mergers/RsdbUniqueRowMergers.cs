@@ -8,27 +8,31 @@ namespace RsdbMerger.Core.Mergers;
 /// </summary>
 public class RsdbUniqueRowMergers
 {
-    public static readonly RsdbUniqueRowMerger RowId = new(
+    private const string ROW_ID_KEY = "__RowId";
+    public static readonly RsdbUniqueRowMerger RowId = new(ROW_ID_KEY,
         (row) => {
-            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row["__RowId"].GetString()));
+            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row[ROW_ID_KEY].GetString()));
         }
     );
 
-    public static readonly RsdbUniqueRowMerger Name = new(
+    private const string NAME_KEY = "Name";
+    public static readonly RsdbUniqueRowMerger Name = new(NAME_KEY,
         (row) => {
-            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row["Name"].GetString()));
+            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row[NAME_KEY].GetString()));
         }
     );
 
-    public static readonly RsdbUniqueRowMerger FullTagId = new(
+    private const string FULL_TAG_ID_KEY = "FullTagId";
+    public static readonly RsdbUniqueRowMerger FullTagId = new(FULL_TAG_ID_KEY,
         (row) => {
-            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row["FullTagId"].GetString()));
+            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row[FULL_TAG_ID_KEY].GetString()));
         }
     );
 
-    public static readonly RsdbUniqueRowMerger NameHash = new(
+    private const string NAME_HASH_KEY = "NameHash";
+    public static readonly RsdbUniqueRowMerger NameHash = new(NAME_HASH_KEY,
         (row) => {
-            return row["NameHash"].GetUInt32();
+            return row[NAME_HASH_KEY].GetUInt32();
         }
     );
 }
