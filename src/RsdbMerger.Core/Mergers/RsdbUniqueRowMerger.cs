@@ -60,7 +60,7 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
             vanilla = vanillaRows[vanillaIndex];
         }
 
-        if (!BymlMergerService.LogChanges(ref row, vanilla)) {
+        if (!BymlChangelogService.LogChanges(ref row, vanilla)) {
             map[_idKey] = rowId;
             return false;
         }
