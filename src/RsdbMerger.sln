@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RsdbMerger", "RsdbMerger\Rs
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{C28B4065-9227-42FD-AD63-5A8286C54A57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RsdbChecksumGenerator", "RsdbChecksumGenerator\RsdbChecksumGenerator.csproj", "{32064204-B3B6-4D36-BE21-73946A2B87E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RsdbChecksumGenerator", "Scripts\RsdbChecksumGenerator\RsdbChecksumGenerator.csproj", "{32064204-B3B6-4D36-BE21-73946A2B87E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
