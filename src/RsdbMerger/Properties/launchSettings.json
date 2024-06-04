@@ -2,7 +2,7 @@
   "profiles": {
     "RsdbMerger": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\bin\\.todo\\RSDB\\romfs\" \"D:\\bin\\.todo\\RSDB\\output-romfs\""
+      "commandLineArgs": "\"D:\\bin\\.todo\\RSDB\\Mod-1\" \"D:\\bin\\.todo\\RSDB\\Mod-2\" \"D:\\bin\\.todo\\RSDB\\Mod-3\" \"D:\\bin\\.todo\\RSDB\\Merged\""
     }
   }
 }
