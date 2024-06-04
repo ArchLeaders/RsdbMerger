@@ -68,7 +68,7 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
         return true;
     }
 
-    public void Merge(ArraySegment<byte>[] merge, Stream output)
+    public void Merge(ReadOnlySpan<char> canonical, ArraySegment<byte>[] merge, RsdbFile target, Stream output)
     {
         throw new NotImplementedException();
     }
