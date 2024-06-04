@@ -17,7 +17,7 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
     private readonly string _idKey = idKey;
     private readonly Func<BymlMap, ulong> _getRowIdHash = getRowIdHash;
 
-    public void CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
+    public bool CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
     {
         BymlArray vanillaRows = target.OpenVanilla().GetArray();
         ulong rsdbNameHash = XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(canonical));
@@ -39,11 +39,12 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
             }
         }
 
-        // BYML is much faster to write into memory
-        using RecyclableMemoryStream ms = new(MemoryStreamManager);
-        root.WriteBinary(ms, endianness, bymlVersion);
-        ms.Seek(0, SeekOrigin.Begin);
-        ms.CopyTo(output);
+        if (array.Count == 0) {
+            return false;
+        }
+
+        root.WriteBinary(output, endianness, bymlVersion);
+        return true;
     }
 
     private bool LogRowChanges(BymlArray vanillaRows, Byml row, ulong rsdbNameHash, int version)

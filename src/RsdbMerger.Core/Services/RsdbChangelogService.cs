@@ -1,4 +1,5 @@
-﻿using Revrs.Buffers;
+﻿using Microsoft.IO;
+using Revrs.Buffers;
 using RsdbMerger.Core.Components;
 using RsdbMerger.Core.Models;
 using TotkCommon;
@@ -77,8 +78,12 @@ public class RsdbChangelogService
         ReadOnlySpan<char> canonical = target.FilePath.ToCanonical(_romfs);
         IRsdbMerger merger = RsdbMergerProvider.GetMerger(canonical);
 
-        string output = target.GetOutputPath(_output);
-        using FileStream fs = File.Create(output);
-        merger.CreateChangelog(canonical, data, target, fs);
+        using RecyclableMemoryStream ms = new(MemoryStreamManager);
+        if (merger.CreateChangelog(canonical, data, target, ms)) {
+            string output = target.GetOutputPath(_output);
+            using FileStream fs = File.Create(output);
+            ms.Seek(0, SeekOrigin.Begin);
+            ms.CopyTo(fs);
+        }
     }
 }

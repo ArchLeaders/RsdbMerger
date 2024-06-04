@@ -1,5 +1,4 @@
 ﻿using BymlLibrary;
-using Microsoft.IO;
 using Revrs;
 using RsdbMerger.Core.Components;
 using RsdbMerger.Core.Models;
@@ -11,7 +10,7 @@ public class RsdbTagMerger : IRsdbMerger
 {
     public static readonly RsdbTagMerger Shared = new();
 
-    public void CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
+    public bool CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
     {
         RevrsReader reader = new(data);
         ImmutableByml byml = new(ref reader);
@@ -19,13 +18,14 @@ public class RsdbTagMerger : IRsdbMerger
         ushort bymlVersion = byml.Header.Version;
 
         Byml root = Byml.FromImmutable(byml);
-        Byml changelog = TagTable.LogChanges(root.GetMap(), target.OpenVanilla());
+        Byml changelog = TagTable.LogChanges(root.GetMap(), target.OpenVanilla(), out bool hasChanges);
 
-        // BYML is much faster to write into memory
-        using RecyclableMemoryStream ms = new(MemoryStreamManager);
-        changelog.WriteBinary(ms, endianness, bymlVersion);
-        ms.Seek(0, SeekOrigin.Begin);
-        ms.CopyTo(output);
+        if (!hasChanges) {
+            return false;
+        }
+
+        changelog.WriteBinary(output, endianness, bymlVersion);
+        return true;
     }
 
     public void Merge(ReadOnlySpan<char> canonical, ArraySegment<byte>[] merge, RsdbFile target, Stream output)

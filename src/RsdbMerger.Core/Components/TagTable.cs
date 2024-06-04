@@ -11,7 +11,7 @@ public class TagTable
     public const string TAG_LIST = "TagList";
     public const string BIT_TABLE = "BitTable";
 
-    public static Byml LogChanges(BymlMap src, Byml vanillaByml)
+    public static Byml LogChanges(BymlMap src, Byml vanillaByml, out bool hasChanges)
     {
         using FrozenTagTable vanilla = new(vanillaByml.GetMap());
 
@@ -44,6 +44,7 @@ public class TagTable
             }
         }
 
+        hasChanges = entries.Count > 0 || addedTags.Count > 0;
         return new BymlMap() {
             { "Entries", entries },
             { "Tags", addedTags }
