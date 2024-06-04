@@ -75,7 +75,7 @@ public class RsdbChangelogService
     private void CreateChangelog(RsdbFile target, ArraySegment<byte> data)
     {
         ReadOnlySpan<char> canonical = target.FilePath.ToCanonical(_romfs);
-        IRsdbMerger merger = RsdbMergerService.GetMerger(canonical);
+        IRsdbMerger merger = RsdbMergerProvider.GetMerger(canonical);
 
         string output = target.GetOutputPath(_output);
         using FileStream fs = File.Create(output);
