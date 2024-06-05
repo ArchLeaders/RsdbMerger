@@ -69,8 +69,12 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
         return true;
     }
 
-    public void Merge(ReadOnlySpan<char> canonical, ArraySegment<byte>[] merge, RsdbFile target, Stream output)
+    public void Merge(ReadOnlySpan<char> canonical, IEnumerable<ArraySegment<byte>> merge, RsdbFile target, Stream output)
     {
-        throw new NotImplementedException();
+        Byml vanillaRoot = target.OpenVanilla();
+        BymlArray vanillaRows = vanillaRoot.GetArray();
+        ulong rsdbNameHash = XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(canonical));
+        
+        vanillaRoot.WriteBinary(output, Endianness.Little, 7);
     }
 }
