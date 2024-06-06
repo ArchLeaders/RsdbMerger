@@ -1,11 +1,12 @@
 ﻿using BymlLibrary;
 using BymlLibrary.Nodes.Containers;
-using Microsoft.IO;
 using Revrs;
+using RsdbMerger.Core.Components;
 using RsdbMerger.Core.Models;
 using RsdbMerger.Core.Services;
 using System.IO.Hashing;
 using System.Runtime.InteropServices;
+using TotkCommon;
 
 namespace RsdbMerger.Core.Mergers;
 
@@ -16,6 +17,7 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
 {
     private readonly string _idKey = idKey;
     private readonly Func<BymlMap, ulong> _getRowIdHash = getRowIdHash;
+    private readonly RsdbRowComparer _rowComparer = new(idKey);
 
     public bool CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
     {
@@ -69,12 +71,41 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
         return true;
     }
 
-    public void Merge(ReadOnlySpan<char> canonical, IEnumerable<ArraySegment<byte>> merge, RsdbFile target, Stream output)
+    public void Merge(ReadOnlySpan<char> canonical, IEnumerable<ArraySegment<byte>> targets, RsdbFile target, Stream output)
     {
-        Byml vanillaRoot = target.OpenVanilla(out Endianness endianness, out ushort version);
+        Byml vanillaRoot = target.OpenVanilla(out Endianness endianness, out ushort version, extension: ".zs");
         BymlArray vanillaRows = vanillaRoot.GetArray();
         ulong rsdbNameHash = XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(canonical));
-        
+
+        foreach (ArraySegment<byte> changelog in targets) {
+            MergeChangelog(changelog, vanillaRows, rsdbNameHash);
+        }
+
+        vanillaRows.Sort(_rowComparer);
         vanillaRoot.WriteBinary(output, endianness, version);
+    }
+
+    private void MergeChangelog(ArraySegment<byte> changelog, BymlArray vanillaRows, ulong rsdbHashName)
+    {
+        BymlArray entries = Byml.FromBinary(changelog).GetArray();
+        foreach (Byml entry in entries) {
+            BymlMap map = entry.GetMap();
+            switch (map[_idKey].Value) {
+                case ulong keyId:
+                    Byml vanilla = GetVanillaRow(keyId, vanillaRows, rsdbHashName);
+                    map.Remove(_idKey);
+                    BymlMergerService.Merge(entry, vanilla);
+                    break;
+                default:
+                    vanillaRows.Add(entry);
+                    break;
+            }
+        }
+    }
+
+    private static Byml GetVanillaRow(ulong rowId, BymlArray vanillaRows, ulong rsdbNameHash)
+    {
+        int vanillaIndex = RsdbIndexMappingService.GetIndex(rsdbNameHash, rowId);
+        return vanillaRows[vanillaIndex];
     }
 }
