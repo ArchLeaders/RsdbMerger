@@ -1,11 +1,12 @@
 ﻿using BymlLibrary;
 using BymlLibrary.Nodes.Containers;
 using CommunityToolkit.HighPerformance.Buffers;
+using RsdbMerger.Core.Components;
 using System.Collections.Frozen;
 
-namespace RsdbMerger.Core.Components;
+namespace RsdbMerger.Core.Services;
 
-public class TagTable
+public class TagTableChangelogService
 {
     public const string PATH_LIST = "PathList";
     public const string TAG_LIST = "TagList";
@@ -20,14 +21,16 @@ public class TagTable
         BymlArray tags = src[TAG_LIST].GetArray();
         byte[] bitTable = src[BIT_TABLE].GetBinary();
 
-        for (int i = 0; i < paths.Count; i++) {
+        for (int i = 0; i < paths.Count; i++)
+        {
             int entryIndex = i / 3;
             bool isKeyVanilla = vanilla.HasEntry(paths, ref i, out int vanillaEntryIndex, out (Byml Prefix, Byml Name, Byml Suffix) entry);
             HashSet<string> entryTags = GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable);
 
             int removedCount = 0;
             SpanOwner<string> removed = SpanOwner<string>.Empty;
-            if (isKeyVanilla && IsEntryVanilla(entryTags, vanilla.EntryTags[vanillaEntryIndex], out removed, out removedCount)) {
+            if (isKeyVanilla && IsEntryVanilla(entryTags, vanilla.EntryTags[vanillaEntryIndex], out removed, out removedCount))
+            {
                 continue;
             }
 
@@ -38,8 +41,10 @@ public class TagTable
 
         BymlArray addedTags = [];
 
-        foreach (Byml tag in tags) {
-            if (!vanilla.HasTag(tag)) {
+        foreach (Byml tag in tags)
+        {
+            if (!vanilla.HasTag(tag))
+            {
                 addedTags.Add(tag);
             }
         }
@@ -56,11 +61,13 @@ public class TagTable
         int index = -1;
         BymlArrayChangelog changelog = [];
 
-        foreach (string tag in removed) {
+        foreach (string tag in removed)
+        {
             changelog[++index] = (BymlChangeType.Remove, tag);
         }
 
-        foreach (string tag in entryTags) {
+        foreach (string tag in entryTags)
+        {
             changelog[++index] = (BymlChangeType.Add, tag);
         }
 
@@ -72,8 +79,10 @@ public class TagTable
         removed = SpanOwner<string>.Allocate(vanillaEntryTags.Count);
         removedCount = 0;
 
-        foreach (string tag in vanillaEntryTags) {
-            if (!entryTags.Remove(tag)) {
+        foreach (string tag in vanillaEntryTags)
+        {
+            if (!entryTags.Remove(tag))
+            {
                 removed.Span[removedCount] = tag;
                 removedCount++;
             }
@@ -89,16 +98,20 @@ public class TagTable
         int index = entryIndex * tags.Count;
         int bitOffset = index % 8;
 
-        fixed (byte* ptr = &bitTable[index / 8]) {
+        fixed (byte* ptr = &bitTable[index / 8])
+        {
             byte* current = ptr;
 
-            for (int i = 0; i < tags.Count; i++) {
-                int value = (*current >> bitOffset) & 1;
-                if (((*current >> bitOffset) & 1) == 1) {
+            for (int i = 0; i < tags.Count; i++)
+            {
+                int value = *current >> bitOffset & 1;
+                if ((*current >> bitOffset & 1) == 1)
+                {
                     entryTags.Add(tags[i].GetString());
                 }
 
-                switch (bitOffset) {
+                switch (bitOffset)
+                {
                     case 7:
                         bitOffset = 0;
                         current++;

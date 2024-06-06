@@ -1,5 +1,6 @@
 ﻿using BymlLibrary;
 using BymlLibrary.Nodes.Containers;
+using RsdbMerger.Core.Services;
 using System.Buffers;
 using System.Collections.Frozen;
 
@@ -13,11 +14,11 @@ public class FrozenTagTable : IDisposable
 
     public FrozenTagTable(BymlMap table)
     {
-        BymlArray paths = table[TagTable.PATH_LIST].GetArray();
-        BymlArray tags = table[TagTable.TAG_LIST].GetArray();
+        BymlArray paths = table[TagTableChangelogService.PATH_LIST].GetArray();
+        BymlArray tags = table[TagTableChangelogService.TAG_LIST].GetArray();
         int entryCount = paths.Count / 3;
 
-        byte[] bitTable = table[TagTable.BIT_TABLE].GetBinary();
+        byte[] bitTable = table[TagTableChangelogService.BIT_TABLE].GetBinary();
 
         Dictionary<(string, string, string), int> entries = new(entryCount);
         EntryTags = ArrayPool<FrozenSet<string>>.Shared.Rent(entryCount);
@@ -60,7 +61,7 @@ public class FrozenTagTable : IDisposable
 
     private unsafe static FrozenSet<string> GetEntryTags(int entryIndex, BymlArray tags, Span<byte> bitTable)
     {
-        return TagTable.GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable).ToFrozenSet();
+        return TagTableChangelogService.GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable).ToFrozenSet();
     }
 
     public void Dispose()
