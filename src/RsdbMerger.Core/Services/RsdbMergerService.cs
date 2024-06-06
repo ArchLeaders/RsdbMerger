@@ -9,6 +9,8 @@ namespace RsdbMerger.Core.Services;
 
 public class RsdbMergerService
 {
+    internal const string SEARCH_PATTERN = "*.Product.*.*";
+
     private readonly Dictionary<string, List<RsdbFile>> _targets = [];
     private readonly string _output;
 
@@ -19,7 +21,11 @@ public class RsdbMergerService
         foreach (string romfs in romfsMods) {
             string rsdb = Path.Combine(romfs, RSDB);
 
-            foreach (string filePath in Directory.EnumerateFiles(rsdb)) {
+            if (!Directory.Exists(rsdb)) {
+                continue;
+            }
+
+            foreach (string filePath in Directory.EnumerateFiles(rsdb, SEARCH_PATTERN, SearchOption.TopDirectoryOnly)) {
                 RsdbFile target = new(filePath);
                 string name = $"{target.Name}.Product.{Totk.Config.Version}.{target.Suffix}.zs";
 
