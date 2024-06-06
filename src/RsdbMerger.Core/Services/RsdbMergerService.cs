@@ -74,7 +74,10 @@ public class RsdbMergerService
 
         int size = Convert.ToInt32(ms.Length);
         using SpanOwner<byte> compressed = SpanOwner<byte>.Allocate(size);
-        size = Totk.Zstd.Compress(ms.ToArray(), compressed.Span, zsDictionaryId: 1);
+
+        lock (Totk.Zstd) {
+            size = Totk.Zstd.Compress(ms.ToArray(), compressed.Span, zsDictionaryId: 1);
+        }
 
         string output = Path.Combine(_output, name);
         using FileStream fs = File.Create(output);
