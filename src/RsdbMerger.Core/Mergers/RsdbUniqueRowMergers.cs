@@ -22,10 +22,10 @@ public class RsdbUniqueRowMergers
         }
     );
 
-    private const string FULL_TAG_ID_KEY = "FullTagId";
-    public static readonly RsdbUniqueRowMerger FullTagId = new(FULL_TAG_ID_KEY,
+    private const string DISPLAY_ORDER_KEY = "DisplayOrder";
+    public static readonly RsdbUniqueRowMerger DisplayOrderId = new(DISPLAY_ORDER_KEY,
         (row) => {
-            return XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(row[FULL_TAG_ID_KEY].GetString()));
+            return (ulong)row[DISPLAY_ORDER_KEY].GetInt();
         }
     );
 
