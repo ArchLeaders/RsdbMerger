@@ -44,7 +44,7 @@ public class RsdbFile
 
     public string GetOutputPath(string outputRsdbFolder)
     {
-        return Path.Combine(outputRsdbFolder, $"{Name}.Product.{Suffix[..^3]}");
+        return Path.Combine(outputRsdbFolder, $"{Name}.Product.0.{Suffix[..^3]}");
     }
 
     public Byml OpenVanilla(out Endianness endianness, out ushort version)
