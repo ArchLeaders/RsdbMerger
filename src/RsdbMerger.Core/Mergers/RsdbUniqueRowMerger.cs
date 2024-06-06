@@ -19,7 +19,7 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
 
     public bool CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
     {
-        BymlArray vanillaRows = target.OpenVanilla().GetArray();
+        BymlArray vanillaRows = target.OpenVanilla(out _, out _).GetArray();
         ulong rsdbNameHash = XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(canonical));
 
         RevrsReader reader = new(data);
@@ -71,10 +71,10 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
 
     public void Merge(ReadOnlySpan<char> canonical, IEnumerable<ArraySegment<byte>> merge, RsdbFile target, Stream output)
     {
-        Byml vanillaRoot = target.OpenVanilla();
+        Byml vanillaRoot = target.OpenVanilla(out Endianness endianness, out ushort version);
         BymlArray vanillaRows = vanillaRoot.GetArray();
         ulong rsdbNameHash = XxHash3.HashToUInt64(MemoryMarshal.Cast<char, byte>(canonical));
         
-        vanillaRoot.WriteBinary(output, Endianness.Little, 7);
+        vanillaRoot.WriteBinary(output, endianness, version);
     }
 }

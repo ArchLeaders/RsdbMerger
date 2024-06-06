@@ -1,6 +1,7 @@
 ﻿using BymlLibrary;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using Revrs;
 using TotkCommon;
 
 namespace RsdbMerger.Core.Models;
@@ -46,7 +47,7 @@ public class RsdbFile
         return Path.Combine(outputRsdbFolder, $"{Name}.Product.{Suffix[..^3]}");
     }
 
-    public Byml OpenVanilla()
+    public Byml OpenVanilla(out Endianness endianness, out ushort version)
     {
         string path = Path.Combine(Totk.Config.GamePath, RSDB, $"{Name}.Product.{Totk.Config.Version}.{Suffix}");
         using FileStream fs = File.OpenRead(path);
@@ -57,6 +58,6 @@ public class RsdbFile
         using SpanOwner<byte> decompressed = SpanOwner<byte>.Allocate(Zstd.GetDecompressedSize(buffer.Span));
         Totk.Zstd.Decompress(buffer.Span, decompressed.Span);
 
-        return Byml.FromBinary(decompressed.Span);
+        return Byml.FromBinary(decompressed.Span, out endianness, out version);
     }
 }

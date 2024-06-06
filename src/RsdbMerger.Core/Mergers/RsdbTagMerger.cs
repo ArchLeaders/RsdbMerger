@@ -18,7 +18,7 @@ public class RsdbTagMerger : IRsdbMerger
         ushort bymlVersion = byml.Header.Version;
 
         Byml root = Byml.FromImmutable(byml);
-        Byml changelog = TagTable.LogChanges(root.GetMap(), target.OpenVanilla(), out bool hasChanges);
+        Byml changelog = TagTable.LogChanges(root.GetMap(), target.OpenVanilla(out _, out _), out bool hasChanges);
 
         if (!hasChanges) {
             return false;
