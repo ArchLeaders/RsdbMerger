@@ -6,18 +6,18 @@ using RsdbMerger.Core.Models;
 using RsdbMerger.Core.Services;
 using System.IO.Hashing;
 using System.Runtime.InteropServices;
-using TotkCommon;
 
 namespace RsdbMerger.Core.Mergers;
 
 /// <summary>
 /// Merges array based RSDB files using the a unique id.
 /// </summary>
-public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash) : IRsdbMerger
+public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash, string? sortKey = null, Action<BymlMap, int>? updateRow = null) : IRsdbMerger
 {
     private readonly string _idKey = idKey;
     private readonly Func<BymlMap, ulong> _getRowIdHash = getRowIdHash;
-    private readonly RsdbRowComparer _rowComparer = new(idKey);
+    private readonly Action<BymlMap, int>? _updateRow = updateRow;
+    private readonly RsdbRowComparer _rowComparer = new(sortKey ?? idKey);
 
     public bool CreateChangelog(ReadOnlySpan<char> canonical, ArraySegment<byte> data, RsdbFile target, Stream output)
     {
@@ -89,14 +89,15 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
     {
         BymlArray entries = Byml.FromBinary(changelog).GetArray();
         foreach (Byml entry in entries) {
-            BymlMap map = entry.GetMap();
-            switch (map[_idKey].Value) {
+            BymlMap row = entry.GetMap();
+            switch (row[_idKey].Value) {
                 case ulong keyId:
                     Byml vanilla = GetVanillaRow(keyId, vanillaRows, rsdbHashName);
-                    map.Remove(_idKey);
+                    row.Remove(_idKey);
                     BymlMergerService.Merge(entry, vanilla);
                     break;
                 default:
+                    _updateRow?.Invoke(row, vanillaRows.Count);
                     vanillaRows.Add(entry);
                     break;
             }
