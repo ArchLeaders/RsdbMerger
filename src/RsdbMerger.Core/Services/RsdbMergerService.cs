@@ -12,7 +12,7 @@ public class RsdbMergerService
     private readonly Dictionary<string, List<RsdbFile>> _targets = [];
     private readonly string _output;
 
-    public RsdbMergerService(Span<string> romfsMods, string output)
+    public RsdbMergerService(IEnumerable<string> romfsMods, string output)
     {
         _output = Path.Combine(output, RSDB);
 
