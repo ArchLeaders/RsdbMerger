@@ -5,41 +5,69 @@ namespace RsdbMerger.Core.Services;
 
 public class BymlMergerService
 {
-    public static bool Merge(ref Byml src, Byml vanilla)
+    public static void Merge(Byml src, Byml vanilla)
     {
-        if (src.Type != vanilla.Type) {
-            return false;
+        switch (src.Type) {
+            case BymlNodeType.HashMap32:
+                MergeMapChangelog(src.GetHashMap32(), vanilla.GetHashMap32());
+                break;
+            case BymlNodeType.HashMap64:
+                MergeMapChangelog(src.GetHashMap64(), vanilla.GetHashMap64());
+                break;
+            case BymlNodeType.ArrayChangelog:
+                MergeArrayChangelog(src.GetArrayChangelog(), vanilla.GetArray());
+                break;
+            case BymlNodeType.Map:
+                MergeMapChangelog(src.GetMap(), vanilla.GetMap());
+                break;
+            default:
+                throw new NotSupportedException($"""
+                    Merging '{src.Type}' is not supported 
+                    """);
         }
-
-        return src.Type switch {
-            BymlNodeType.HashMap32 => MergeMapChangelog(src.GetHashMap32(), vanilla.GetHashMap32()),
-            BymlNodeType.HashMap64 => MergeMapChangelog(src.GetHashMap64(), vanilla.GetHashMap64()),
-            BymlNodeType.ArrayChangelog => MergeArrayChangelog(ref src, src.GetArrayChangelog(), vanilla.GetArrayChangelog()),
-            BymlNodeType.Map => MergeMapChangelog(src.GetMap(), vanilla.GetMap()),
-            BymlNodeType.String or
-            BymlNodeType.Binary or
-            BymlNodeType.BinaryAligned or
-            BymlNodeType.Bool or
-            BymlNodeType.Int or
-            BymlNodeType.Float or
-            BymlNodeType.UInt32 or
-            BymlNodeType.Int64 or
-            BymlNodeType.UInt64 or
-            BymlNodeType.Double or
-            BymlNodeType.Null => Byml.ValueEqualityComparer.Default.Equals(src, vanilla),
-            _ => throw new NotSupportedException($"""
-                Merging '{src.Type}' is not supported 
-                """)
-        };
     }
 
-    private static bool MergeArrayChangelog(ref Byml root, BymlArrayChangelog src, BymlArrayChangelog vanilla)
+    private static void MergeArrayChangelog(BymlArrayChangelog src, BymlArray vanilla)
     {
-        return true;
+        foreach (var (index, (change, entry)) in src) {
+            switch (change) {
+                case BymlChangeType.Add:
+                    vanilla.Add(entry);
+                    break;
+                case BymlChangeType.Remove:
+                    vanilla.RemoveAt(index);
+                    break;
+                case BymlChangeType.Edit:
+                    if (entry.Value is IBymlNode) {
+                        Merge(entry, vanilla[index]);
+                        continue;
+                    }
+
+                    vanilla[index] = entry;
+                    break;
+            }
+        }
     }
 
-    private static bool MergeMapChangelog<T>(IDictionary<T, Byml> src, IDictionary<T, Byml> vanilla)
+    private static void MergeMapChangelog<T>(IDictionary<T, Byml> src, IDictionary<T, Byml> vanilla)
     {
-        return true;
+        foreach (var (key, entry) in src) {
+            if (!vanilla.TryGetValue(key, out Byml? vanillaEntry)) {
+                vanilla[key] = entry;
+                continue;
+            }
+
+            if (entry.Value is BymlChangeType.Remove) {
+                vanilla.Remove(key);
+                continue;
+            }
+
+            if (entry.Value is IBymlNode) {
+                Merge(entry, vanillaEntry);
+                continue;
+            }
+
+            vanilla[key] = entry;
+        }
     }
 }
