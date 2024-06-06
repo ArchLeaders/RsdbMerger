@@ -8,24 +8,20 @@ namespace RsdbMerger.Core.Services;
 
 public class TagTableChangelogService
 {
-    public const string PATH_LIST = "PathList";
-    public const string TAG_LIST = "TagList";
-    public const string BIT_TABLE = "BitTable";
-
     public static Byml LogChanges(BymlMap src, Byml vanillaByml, out bool hasChanges)
     {
         using FrozenTagTable vanilla = new(vanillaByml.GetMap());
 
         BymlArray entries = [];
-        BymlArray paths = src[PATH_LIST].GetArray();
-        BymlArray tags = src[TAG_LIST].GetArray();
-        byte[] bitTable = src[BIT_TABLE].GetBinary();
+        BymlArray paths = src[TagTable.PATH_LIST].GetArray();
+        BymlArray tags = src[TagTable.TAG_LIST].GetArray();
+        byte[] bitTable = src[TagTable.BIT_TABLE].GetBinary();
 
         for (int i = 0; i < paths.Count; i++)
         {
             int entryIndex = i / 3;
             bool isKeyVanilla = vanilla.HasEntry(paths, ref i, out int vanillaEntryIndex, out (Byml Prefix, Byml Name, Byml Suffix) entry);
-            HashSet<string> entryTags = GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable);
+            HashSet<string> entryTags = TagTable.GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable);
 
             int removedCount = 0;
             SpanOwner<string> removed = SpanOwner<string>.Empty;
@@ -89,40 +85,5 @@ public class TagTableChangelogService
         }
 
         return entryTags.Count == 0;
-    }
-
-    public unsafe static T GetEntryTags<T>(int entryIndex, BymlArray tags, Span<byte> bitTable) where T : ICollection<string>, new()
-    {
-        T entryTags = new();
-
-        int index = entryIndex * tags.Count;
-        int bitOffset = index % 8;
-
-        fixed (byte* ptr = &bitTable[index / 8])
-        {
-            byte* current = ptr;
-
-            for (int i = 0; i < tags.Count; i++)
-            {
-                int value = *current >> bitOffset & 1;
-                if ((*current >> bitOffset & 1) == 1)
-                {
-                    entryTags.Add(tags[i].GetString());
-                }
-
-                switch (bitOffset)
-                {
-                    case 7:
-                        bitOffset = 0;
-                        current++;
-                        continue;
-                    default:
-                        bitOffset++;
-                        continue;
-                }
-            }
-        }
-
-        return entryTags;
     }
 }

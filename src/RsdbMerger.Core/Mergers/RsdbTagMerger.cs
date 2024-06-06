@@ -1,5 +1,7 @@
 ﻿using BymlLibrary;
+using BymlLibrary.Nodes.Containers;
 using Revrs;
+using RsdbMerger.Core.Components;
 using RsdbMerger.Core.Models;
 using RsdbMerger.Core.Services;
 
@@ -27,8 +29,53 @@ public class RsdbTagMerger : IRsdbMerger
         return true;
     }
 
-    public void Merge(ReadOnlySpan<char> canonical, IEnumerable<ArraySegment<byte>> merge, RsdbFile target, Stream output)
+    public void Merge(ReadOnlySpan<char> canonical, IEnumerable<ArraySegment<byte>> targets, RsdbFile target, Stream output)
     {
-        throw new NotImplementedException();
+        TagTable vanilla = new(
+            target.OpenVanilla(out Endianness endianness, out ushort version, extension: ".zs").GetMap()
+        );
+
+        foreach (ArraySegment<byte> targetData in targets) {
+            Byml root = Byml.FromBinary(targetData);
+            MergeChangelog(root.GetMap(), vanilla);
+        }
+        
+        vanilla.Compile().WriteBinary(output, endianness, version);
+    }
+
+    private static void MergeChangelog(BymlMap root, TagTable vanilla)
+    {
+        BymlArray paths = root["Entries"].GetArray();
+
+        for (int i = 0; i < paths.Count; i++) {
+            int entryIndex = i / 4;
+            (string, string, string) key = (
+                paths[i].GetString(), paths[++i].GetString(), paths[++i].GetString()
+            );
+
+            BymlArrayChangelog entryTags = paths[++i].GetArrayChangelog();
+
+            if (!vanilla.Entries.TryGetValue(key, out List<string>? vanillaEntryTags)) {
+                vanilla.Entries[key] = [..
+                    entryTags.Values.Select(x => x.Item2.GetString())
+                ];
+                continue;
+            }
+
+            foreach (var (_, (change, tag)) in entryTags) {
+                switch (change) {
+                    case BymlChangeType.Edit:
+                    case BymlChangeType.Add:
+                        vanillaEntryTags.Add(tag.GetString());
+                        break;
+                    case BymlChangeType.Remove:
+                        vanillaEntryTags.Remove(tag.GetString());
+                        break;
+                }
+            }
+        }
+
+        BymlArray tags = root["Tags"].GetArray();
+        vanilla.Tags.AddRange(tags.Select(x => x.GetString()));
     }
 }
