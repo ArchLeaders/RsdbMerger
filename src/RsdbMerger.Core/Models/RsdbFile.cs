@@ -47,9 +47,9 @@ public class RsdbFile
         return Path.Combine(outputRsdbFolder, $"{Name}.Product.0.{Suffix[..^3]}");
     }
 
-    public Byml OpenVanilla(out Endianness endianness, out ushort version)
+    public Byml OpenVanilla(out Endianness endianness, out ushort version, string extension = "")
     {
-        string path = Path.Combine(Totk.Config.GamePath, RSDB, $"{Name}.Product.{Totk.Config.Version}.{Suffix}");
+        string path = Path.Combine(Totk.Config.GamePath, RSDB, $"{Name}.Product.{Totk.Config.Version}.{Suffix}{extension}");
         using FileStream fs = File.OpenRead(path);
         int size = Convert.ToInt32(fs.Length);
         using SpanOwner<byte> buffer = SpanOwner<byte>.Allocate(size);
