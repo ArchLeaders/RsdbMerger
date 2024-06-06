@@ -23,6 +23,10 @@ public class RsdbMergerService
                 RsdbFile target = new(filePath);
                 string name = $"{target.Name}.Product.{Totk.Config.Version}.{target.Suffix}.zs";
 
+                if (target.Suffix is not "rstbl.byml") {
+                    continue;
+                }
+
                 if (!_targets.TryGetValue(name, out List<RsdbFile>? files)) {
                     _targets[name] = [target];
                     continue;
