@@ -5,11 +5,11 @@ Stopwatch watch = Stopwatch.StartNew();
 
 for (int i = 0; i < (args.Length - 1); i++) {
     RsdbChangelogService changelogServiceM1 = new(args[i], args[i] += ".Changelog");
-    changelogServiceM1.CreateChangelogs();
+    await changelogServiceM1.CreateChangelogsAsync();
 }
 
 RsdbMergerService mergerService = new(args.AsSpan()[..^1], args[^1]);
-mergerService.Merge();
+await mergerService.MergeAsync();
 
 watch.Stop();
-Console.WriteLine(watch.ElapsedMilliseconds);
+Console.WriteLine($"{watch.ElapsedMilliseconds} ms");
