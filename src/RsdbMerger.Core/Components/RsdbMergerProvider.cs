@@ -12,7 +12,7 @@ public class RsdbMergerProvider
             "RSDB/GameSafetySetting.Product.rstbl.byml" => RsdbUniqueRowMergers.NameHash,
             "RSDB/RumbleCall.Product.rstbl.byml" or
             "RSDB/UIScreen.Product.rstbl.byml" => RsdbUniqueRowMergers.Name,
-            "RSDB/TagDef.Product.rstbl.byml" => RsdbUniqueRowMergers.DisplayOrderId,
+            "RSDB/TagDef.Product.rstbl.byml" => RsdbUniqueRowMergers.FullTagId,
             "RSDB/ActorInfo.Product.rstbl.byml" or
             "RSDB/AttachmentActorInfo.Product.rstbl.byml" or
             "RSDB/Challenge.Product.rstbl.byml" or
