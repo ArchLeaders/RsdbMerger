@@ -12,11 +12,13 @@ public class RsdbMergerService
     internal const string SEARCH_PATTERN = "*.Product.*.*";
 
     private readonly Dictionary<string, List<RsdbFile>> _targets = [];
+    private readonly string _outputRsdb;
     private readonly string _output;
 
     public RsdbMergerService(IEnumerable<string> romfsMods, string output)
     {
-        _output = Path.Combine(output, RSDB);
+        _output = output;
+        _outputRsdb = Path.Combine(output, RSDB);
 
         foreach (string romfs in romfsMods) {
             string rsdb = Path.Combine(romfs, RSDB);
@@ -49,7 +51,7 @@ public class RsdbMergerService
             return;
         }
 
-        Directory.CreateDirectory(_output);
+        Directory.CreateDirectory(_outputRsdb);
 
         foreach ((string name, List<RsdbFile> targets) in _targets) {
             MergeTargets(name, targets);
@@ -62,7 +64,7 @@ public class RsdbMergerService
             return;
         }
 
-        Directory.CreateDirectory(_output);
+        Directory.CreateDirectory(_outputRsdb);
 
         await Parallel.ForEachAsync(_targets, (target, cancellationToken) => {
             MergeTargets(target.Key, target.Value);
@@ -72,7 +74,8 @@ public class RsdbMergerService
 
     private void MergeTargets(string name, List<RsdbFile> targets)
     {
-        ReadOnlySpan<char> canonical = $"{RSDB}/{name}".ToCanonical();
+        string outputName = $"{RSDB}/{name}";
+        ReadOnlySpan<char> canonical = outputName.ToCanonical();
         IRsdbMerger merger = RsdbMergerProvider.GetMerger(canonical);
 
         using MemoryStream ms = new();
@@ -85,7 +88,9 @@ public class RsdbMergerService
             size = Totk.Zstd.Compress(ms.ToArray(), compressed.Span, zsDictionaryId: 1);
         }
 
-        string output = Path.Combine(_output, name);
+        ArgumentNullException.ThrowIfNull(Totk.AddressTable);
+
+        string output = Path.Combine(_output, Totk.AddressTable.GetValueOrDefault(canonical.ToString(), outputName)) + ".zs";
         using FileStream fs = File.Create(output);
         fs.Write(compressed.Span[..size]);
     }
