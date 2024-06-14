@@ -4,6 +4,7 @@ using Revrs;
 using RsdbMerger.Core.Components;
 using RsdbMerger.Core.Models;
 using RsdbMerger.Core.Services;
+using System.Diagnostics;
 using System.IO.Hashing;
 using System.Runtime.InteropServices;
 
@@ -32,11 +33,20 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
         Byml root = Byml.FromImmutable(byml);
         BymlArray array = root.GetArray();
 
+        int removedRows = 0;
         for (int i = 0; i < array.Count; i++) {
-            bool isVanillaRow = LogRowChanges(vanillaRows, array[i], rsdbNameHash, target.Version);
+            bool? isVanillaRow = LogRowChanges(vanillaRows, array[i], rsdbNameHash, target.Version);
 
-            if (isVanillaRow) {
+            if (!isVanillaRow.HasValue) {
+                Trace.WriteLine($"""
+                    [WARNING] Actor {i + removedRows} in the RSDB table '{canonical}' did not have a {_idKey}.
+                    """);
+                isVanillaRow = true;
+            }
+
+            if (isVanillaRow.Value) {
                 array.RemoveAt(i);
+                removedRows++;
                 i--;
             }
         }
@@ -49,9 +59,14 @@ public class RsdbUniqueRowMerger(string idKey, Func<BymlMap, ulong> getRowIdHash
         return true;
     }
 
-    private bool LogRowChanges(BymlArray vanillaRows, Byml row, ulong rsdbNameHash, int version)
+    private bool? LogRowChanges(BymlArray vanillaRows, Byml row, ulong rsdbNameHash, int version)
     {
         BymlMap map = row.GetMap();
+
+        if (!map.ContainsKey(_idKey)) {
+            return null;
+        }
+
         ulong rowId = _getRowIdHash(map);
         int vanillaIndex = RsdbIndexMappingService.GetIndex(rsdbNameHash, rowId);
 
