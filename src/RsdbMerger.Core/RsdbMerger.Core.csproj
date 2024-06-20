@@ -13,8 +13,8 @@
 
   <ItemGroup>
     <PackageReference Include="Tkmm.BymlLibrary" Version="1.0.9" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.0" />
-    <PackageReference Include="TotkCommon" Version="1.2.4" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+    <PackageReference Include="TotkCommon" Version="1.2.7" />
   </ItemGroup>
 
 </Project>
