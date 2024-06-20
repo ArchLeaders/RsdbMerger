@@ -29,13 +29,20 @@ public class BymlMergerService
 
     private static void MergeArrayChangelog(BymlArrayChangelog src, BymlArray vanilla)
     {
+        int indexOffset = 0;
         foreach (var (index, (change, entry)) in src) {
             switch (change) {
                 case BymlChangeType.Add:
                     vanilla.Add(entry);
                     break;
                 case BymlChangeType.Remove:
-                    vanilla.RemoveAt(index);
+                    int i = index - indexOffset;
+                    if (i >= vanilla.Count) {
+                        continue;
+                    }
+
+                    vanilla.RemoveAt(i);
+                    indexOffset++;
                     break;
                 case BymlChangeType.Edit:
                     if (entry.Value is IBymlNode) {
