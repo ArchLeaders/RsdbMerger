@@ -23,7 +23,7 @@ public class RsdbChangelogService
             return;
         }
 
-        _targets = Directory.EnumerateFiles(rsdb)
+        _targets = Directory.EnumerateFiles(rsdb, RsdbMergerService.SEARCH_PATTERN, SearchOption.TopDirectoryOnly)
             .Select(x => new RsdbFile(x))
             .OrderBy(x => x.Version, VersionComparer.Shared)
             .DistinctBy(x => x.Name.ToString());
