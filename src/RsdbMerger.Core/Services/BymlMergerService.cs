@@ -59,13 +59,13 @@ public class BymlMergerService
     private static void MergeMapChangelog<T>(IDictionary<T, Byml> src, IDictionary<T, Byml> vanilla)
     {
         foreach (var (key, entry) in src) {
-            if (!vanilla.TryGetValue(key, out Byml? vanillaEntry)) {
-                vanilla[key] = entry;
+            if (entry.Value is BymlChangeType.Remove) {
+                vanilla.Remove(key);
                 continue;
             }
 
-            if (entry.Value is BymlChangeType.Remove) {
-                vanilla.Remove(key);
+            if (!vanilla.TryGetValue(key, out Byml? vanillaEntry)) {
+                vanilla[key] = entry;
                 continue;
             }
 
