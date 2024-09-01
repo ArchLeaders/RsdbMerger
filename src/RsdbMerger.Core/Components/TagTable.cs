@@ -69,9 +69,9 @@ public class TagTable
         return paths;
     }
 
-    public unsafe static T GetEntryTags<T>(int entryIndex, BymlArray tags, Span<byte> bitTable) where T : ICollection<string>, new()
+    public static unsafe T GetEntryTags<T>(int entryIndex, BymlArray tags, Span<byte> bitTable) where T : ICollection<string>, new()
     {
-        T entryTags = new();
+        T entryTags = [];
 
         int index = entryIndex * tags.Count;
         int bitOffset = index % 8;
@@ -79,10 +79,9 @@ public class TagTable
         fixed (byte* ptr = &bitTable[index / 8]) {
             byte* current = ptr;
 
-            for (int i = 0; i < tags.Count; i++) {
-                int value = *current >> bitOffset & 1;
+            foreach (Byml tag in tags) {
                 if ((*current >> bitOffset & 1) == 1) {
-                    entryTags.Add(tags[i].GetString());
+                    entryTags.Add(tag.GetString());
                 }
 
                 switch (bitOffset) {

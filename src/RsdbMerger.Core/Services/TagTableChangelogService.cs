@@ -20,7 +20,7 @@ public class TagTableChangelogService
         for (int i = 0; i < paths.Count; i++)
         {
             int entryIndex = i / 3;
-            bool isKeyVanilla = vanilla.HasEntry(paths, ref i, out int vanillaEntryIndex, out (Byml Prefix, Byml Name, Byml Suffix) entry);
+            bool isKeyVanilla = vanilla.HasEntry(paths, ref i, out int vanillaEntryIndex, out (Byml Prefix, Byml Name, Byml Suffix) _);
             HashSet<string> entryTags = TagTable.GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable);
 
             int removedCount = 0;

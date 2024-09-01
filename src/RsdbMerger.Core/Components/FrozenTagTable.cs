@@ -58,7 +58,7 @@ public class FrozenTagTable : IDisposable
         return tag.Type == BymlNodeType.String && Tags.Contains(tag.GetString());
     }
 
-    private unsafe static FrozenSet<string> GetEntryTags(int entryIndex, BymlArray tags, Span<byte> bitTable)
+    private static FrozenSet<string> GetEntryTags(int entryIndex, BymlArray tags, Span<byte> bitTable)
     {
         return TagTable.GetEntryTags<HashSet<string>>(entryIndex, tags, bitTable).ToFrozenSet();
     }

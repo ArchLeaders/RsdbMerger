@@ -48,7 +48,6 @@ public class RsdbTagMerger : IRsdbMerger
         BymlArray paths = root["Entries"].GetArray();
 
         for (int i = 0; i < paths.Count; i++) {
-            int entryIndex = i / 4;
             (string, string, string) key = (
                 paths[i].GetString(), paths[++i].GetString(), paths[++i].GetString()
             );
@@ -62,7 +61,7 @@ public class RsdbTagMerger : IRsdbMerger
                 continue;
             }
 
-            foreach (var (_, (change, tag)) in entryTags) {
+            foreach ((int _, (BymlChangeType change, Byml tag)) in entryTags) {
                 switch (change) {
                     case BymlChangeType.Edit:
                     case BymlChangeType.Add:

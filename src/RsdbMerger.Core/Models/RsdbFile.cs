@@ -1,5 +1,4 @@
 ﻿using BymlLibrary;
-using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using Revrs;
 using TotkCommon;
@@ -13,13 +12,9 @@ public class RsdbFile
 
     public string FilePath { get; }
 
-    public ReadOnlySpan<char> Name {
-        get => FilePath.AsSpan()[_nameRange];
-    }
+    public ReadOnlySpan<char> Name => FilePath.AsSpan()[_nameRange];
 
-    public ReadOnlySpan<char> Suffix {
-        get => FilePath.AsSpan()[_suffixRange];
-    }
+    public ReadOnlySpan<char> Suffix => FilePath.AsSpan()[_suffixRange];
 
     public int Version { get; }
 

@@ -50,7 +50,7 @@ public unsafe class BitTableWriter
         MoveBy(_tagLookup.Count - currentEntryIndex, current, ref bitOffset);
     }
 
-    private unsafe void MoveBy(int bits, byte** current, ref int bitOffset)
+    private static void MoveBy(int bits, byte** current, ref int bitOffset)
     {
         int byteCount = (bits += bitOffset) / 8;
         *current += byteCount;

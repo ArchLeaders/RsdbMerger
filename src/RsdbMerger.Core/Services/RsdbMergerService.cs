@@ -60,13 +60,13 @@ public class RsdbMergerService
 
     public async Task MergeAsync()
     {
-        if (_targets is null) {
+        if (_targets.Count < 1) {
             return;
         }
 
         Directory.CreateDirectory(_outputRsdb);
 
-        await Parallel.ForEachAsync(_targets, (target, cancellationToken) => {
+        await Parallel.ForEachAsync(_targets, (target, _) => {
             MergeTargets(target.Key, target.Value);
             return ValueTask.CompletedTask;
         });

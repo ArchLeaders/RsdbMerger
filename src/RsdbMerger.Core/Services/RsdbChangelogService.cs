@@ -50,7 +50,7 @@ public class RsdbChangelogService
 
         Directory.CreateDirectory(_output);
 
-        await Parallel.ForEachAsync(_targets, (target, cancellationToken) => {
+        await Parallel.ForEachAsync(_targets, (target, _) => {
             CreateChangelog(target);
             return ValueTask.CompletedTask;
         });
